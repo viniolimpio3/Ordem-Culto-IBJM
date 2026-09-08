@@ -112,6 +112,7 @@ export function EditorOrdem({ dataCulto, escalacoes, aniversariantes, pessoas, h
       "homens": "Homens",
       "ministerio_homens": "Homens",
       "min_paulo": "Ministério Paulo",
+      "ministerio_paulo": "Ministério Paulo",
       "soldadinhos_de_jesus": "Soldadinhos de Jesus",
       "desperta_debora": "Desperta Débora"
     };
@@ -423,39 +424,41 @@ export function EditorOrdem({ dataCulto, escalacoes, aniversariantes, pessoas, h
           <div className="bloco-conteudo">
             {estado.aniversariantes.map((aniv) => (
               <div key={aniv.id} className="aniversariante-card-compact">
-                <input
-                  type="number"
-                  min="1"
-                  max="31"
-                  value={aniv.dia}
-                  onChange={(e) =>
-                    setEstado((prev) => ({
-                      ...prev,
-                      aniversariantes: prev.aniversariantes.map((a) =>
-                        a.id === aniv.id ? { ...a, dia: parseInt(e.target.value) || 1 } : a
-                      ),
-                    }))
-                  }
-                  className="input-data-dia"
-                  placeholder="DD"
-                />
-                <span className="data-separator">/</span>
-                <input
-                  type="number"
-                  min="1"
-                  max="12"
-                  value={aniv.mes}
-                  onChange={(e) =>
-                    setEstado((prev) => ({
-                      ...prev,
-                      aniversariantes: prev.aniversariantes.map((a) =>
-                        a.id === aniv.id ? { ...a, mes: parseInt(e.target.value) || 1 } : a
-                      ),
-                    }))
-                  }
-                  className="input-data-mes"
-                  placeholder="MM"
-                />
+                <div className="aniversariante-data-grupo">
+                  <input
+                    type="number"
+                    min="1"
+                    max="31"
+                    value={aniv.dia}
+                    onChange={(e) =>
+                      setEstado((prev) => ({
+                        ...prev,
+                        aniversariantes: prev.aniversariantes.map((a) =>
+                          a.id === aniv.id ? { ...a, dia: parseInt(e.target.value) || 1 } : a
+                        ),
+                      }))
+                    }
+                    className="input-data-dia"
+                    placeholder="DD"
+                  />
+                  <span className="data-separator">/</span>
+                  <input
+                    type="number"
+                    min="1"
+                    max="12"
+                    value={aniv.mes}
+                    onChange={(e) =>
+                      setEstado((prev) => ({
+                        ...prev,
+                        aniversariantes: prev.aniversariantes.map((a) =>
+                          a.id === aniv.id ? { ...a, mes: parseInt(e.target.value) || 1 } : a
+                        ),
+                      }))
+                    }
+                    className="input-data-mes"
+                    placeholder="MM"
+                  />
+                </div>
                 <input
                   type="text"
                   value={aniv.nome}
