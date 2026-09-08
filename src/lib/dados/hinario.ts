@@ -1,10 +1,7 @@
-import { readFile } from "node:fs/promises";
-import path from "node:path";
 import Papa from "papaparse";
+import { lerArquivoBase } from "@/lib/dados/blob";
 import { hinoSchema } from "@/lib/dominio/schemas";
 import type { Hino } from "@/lib/dominio/tipos";
-
-const caminhoBase = path.resolve(process.cwd(), "..", "database");
 
 // Hinário HCC: tabela fixa de referência (não muda por atualização de agenda).
 // Validado linha a linha porque a planilha de origem tem defeitos conhecidos
@@ -12,7 +9,7 @@ const caminhoBase = path.resolve(process.cwd(), "..", "database");
 // inválida vira uma pendência reportada ao pastor, em vez de ser descartada
 // ou "corrigida" silenciosamente pelo app.
 export async function carregarHinario() {
-  const conteudo = await readFile(path.join(caminhoBase, "hinario-hcc.csv"), "utf8");
+  const conteudo = await lerArquivoBase("hinario-hcc.csv");
   const resultado = Papa.parse<Record<string, string>>(conteudo, {
     header: true,
     skipEmptyLines: true,

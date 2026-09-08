@@ -1,6 +1,5 @@
-import { readFile } from "node:fs/promises";
-import path from "node:path";
 import Papa from "papaparse";
+import { lerArquivoBase } from "@/lib/dados/blob";
 import {
   aniversarianteSchema,
   cultoSchema,
@@ -14,10 +13,8 @@ import type {
   Pessoa,
 } from "@/lib/dominio/tipos";
 
-const caminhoBase = path.resolve(process.cwd(), "..", "database");
-
 async function lerCsv<T>(nome: string): Promise<T[]> {
-  const conteudo = await readFile(path.join(caminhoBase, nome), "utf8");
+  const conteudo = await lerArquivoBase(nome);
   const resultado = Papa.parse<T>(conteudo, { header: true, skipEmptyLines: true });
   if (resultado.errors.length > 0) {
     throw new Error(`Não foi possível ler ${nome}: ${resultado.errors[0].message}`);
