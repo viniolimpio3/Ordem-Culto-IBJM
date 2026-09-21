@@ -1,7 +1,7 @@
 {
   "crons": [
     {
-      "path": "/api/culto/escala",
+      "path": "/api/culto",
       "schedule": "0 12 * * 4"
     }
   ]

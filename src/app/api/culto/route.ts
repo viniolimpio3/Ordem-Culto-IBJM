@@ -1,16 +1,11 @@
-// api/culto/proximo.ts
-
+import { NextRequest, NextResponse } from "next/server";
 import {
   carregarBase,
   obterCultoPorData,
-  obterProximoCulto
-} from "../../src/lib/dados/base";
-
-import enviarMensagem from "../services/meta";
-
-import { formatarFuncao } from "../../src/lib/utils/formato";
-
-import type { IncomingMessage, ServerResponse } from "http";
+  obterProximoCulto,
+} from "@/lib/dados/base";
+import enviarMensagem from "@/app/api/services/meta";
+import { formatarFuncao } from "@/lib/utils/formato";
 
 interface PessoaEscalaItem {
   funcao: string;
@@ -39,31 +34,25 @@ interface Escala {
   observacao?: string;
 }
 
-export default async function handler(
-  req: IncomingMessage,
-  res: ServerResponse
-) {
+export const dynamic = "force-dynamic";
+
+export async function GET(req: NextRequest) {
   if (req.method !== "GET") {
-    res.statusCode = 405;
-    res.setHeader("Content-Type", "application/json");
-
-    res.end(
-      JSON.stringify({
-        error: "Método não permitido",
-      })
+    return NextResponse.json(
+      { error: "Método não permitido" },
+      { status: 405 }
     );
-
-    return;
   }
 
-  const authHeader = req.headers.authorization;
+  const authHeader = req.headers.get("authorization");
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    res.statusCode = 401;
-    res.end(JSON.stringify({ error: "Não autorizado" }));
-    return;
+    return NextResponse.json(
+      { error: "Não autorizado" },
+      { status: 401 }
+    );
   }
 
-  const url = new URL(req.url ?? "", `http://${req.headers.host}`);
+  const url = new URL(req.url ?? "", `http://${req.headers.get("host")}`);
 
   const dataSelecionada = url.searchParams.get("data");
   const base = await Promise.resolve(carregarBase());
@@ -99,27 +88,22 @@ export default async function handler(
   });
 
   if (escala.length === 0) {
-    res.statusCode = 404;
-    res.setHeader("Content-Type", "application/json");
-    res.end(
-      JSON.stringify({
-        error: "Nenhuma escala encontrada",
-      })
+    return NextResponse.json(
+      { error: "Nenhuma escala encontrada" },
+      { status: 404 }
     );
-    return;
   }
 
   let bypassOnlyReturnData = url.searchParams.get("bypass");
   if (bypassOnlyReturnData) {
-    res.statusCode = 200;
-    res.setHeader("Content-Type", "application/json");
-
-    res.end(JSON.stringify({
-      success: true,
-      message: "Escala encontrada",
-      escala,
-    }));
-    return;
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Escala encontrada",
+        escala,
+      },
+      { status: 200 }
+    );
   }
 
   // Agrupar dados por pessoa
@@ -163,60 +147,58 @@ export default async function handler(
 
       if (pessoaData && pessoaData.isCelular) {
         await enviarMensagem({
-            "messaging_product": "whatsapp",
-            "recipient_type": "individual",
-            "to": pessoaData.telefone,
-            "type": "template",
-            "template": {
-              "name": "avisos_escala",
-              "language": {
-                "code": "pt_BR"
-              },
-              "components": [
-                {
-                  "type": "body",
-                  "parameters": [
-                    {
-                      "type": "text",
-                      "parameter_name": "nome",
-                      "text": pessoaData.nome
-                    },
-                    {
-                      "type": "text",
-                      "parameter_name": "data",
-                      "text": data
-                    },
-                    {
-                      "type": "text",
-                      "parameter_name": "escala",
-                      "text": funcoesConcatenadas
-                    }
-                  ]
-                }
-              ]
-            }
-          });
-        }
-      
+          "messaging_product": "whatsapp",
+          "recipient_type": "individual",
+          "to": pessoaData.telefone,
+          "type": "template",
+          "template": {
+            "name": "avisos_escala",
+            "language": {
+              "code": "pt_BR"
+            },
+            "components": [
+              {
+                "type": "body",
+                "parameters": [
+                  {
+                    "type": "text",
+                    "parameter_name": "nome",
+                    "text": pessoaData.nome
+                  },
+                  {
+                    "type": "text",
+                    "parameter_name": "data",
+                    "text": data
+                  },
+                  {
+                    "type": "text",
+                    "parameter_name": "escala",
+                    "text": funcoesConcatenadas
+                  }
+                ]
+              }
+            ]
+          }
+        });
+      }
+
     }
+
+
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Mensagens enviadas com sucesso",
+        escala,
+      },
+      { status: 200 }
+    );
     
-
-    res.statusCode = 200;
-    res.setHeader("Content-Type", "application/json");
-
-    res.end(JSON.stringify({
-      success: true,
-      message: "Mensagens enviadas com sucesso",
-      escala,
-    }));
   } catch (error) {
-    res.statusCode = 500;
-    res.setHeader("Content-Type", "application/json");
-    res.end(
-      JSON.stringify({
-        error: "Erro ao enviar mensagens",
-        details: error
-      })
+
+    return NextResponse.json(
+      { error: "Erro ao enviar mensagens", details: error },
+      { status: 500 }
     );
   }
 }
