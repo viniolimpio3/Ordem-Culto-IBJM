@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/culto",
-      "schedule": "0 12 * * 4"
+      "schedule": "0 10 * * 4"
     }
   ]
 }
