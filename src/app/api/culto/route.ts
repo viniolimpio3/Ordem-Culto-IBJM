@@ -189,8 +189,8 @@ export async function GET(req: NextRequest) {
 
     // Enviar e-mails com as escalas e respostas do Meta API
     sendMail({
-      from: "viniolimpio3@gmail.com",
-      to: "viniolimpio3@gmail.com",
+      from: process.env.EMAIL_FROM,
+      to: process.env.EMAIL_TO,
       subject: "Escalas e respostas do Meta API - " + new Date().toLocaleDateString(),
       text: JSON.stringify({ escalaPorPessoa, metaResponses }, null, 2)
     });

@@ -12,8 +12,8 @@ const transporter = nodemailer.createTransport({
 
 
 export default function sendMail(options: {
-  from: string,
-  to: string,
+  from: string|undefined,
+  to: string|undefined,
   subject: string,
   text: string,
   html?: string,
