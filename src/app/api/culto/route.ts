@@ -6,6 +6,7 @@ import {
 } from "@/lib/dados/base";
 import enviarMensagem from "@/app/api/services/meta";
 import { formatarFuncao } from "@/lib/utils/formato";
+import sendMail from "../services/mail";
 
 interface PessoaEscalaItem {
   funcao: string;
@@ -107,7 +108,7 @@ export async function GET(req: NextRequest) {
   }
 
   // Agrupar dados por pessoa
-  const escalaPorPessoa: Record<string, PessoaEscala> = {};
+  let escalaPorPessoa: Record<string, PessoaEscala> = {};
   for (const item of escala) {
 
     // Verificar se o item possui pessoas
@@ -138,6 +139,7 @@ export async function GET(req: NextRequest) {
 
   try {
 
+    let metaResponses : any[] = []
     // Enviar mensagens via Meta API - para cada pessoa nas escalas escalaPorPessoa, envia 1 mensagem por pessoa, concatenando funções com "; "
     for (const pessoaId in escalaPorPessoa) {
       const pessoaData = escalaPorPessoa[pessoaId];
@@ -146,7 +148,7 @@ export async function GET(req: NextRequest) {
       const data = pessoaData.escalas[0].dataCulto; // Considera a primeira data da escala somente.
 
       if (pessoaData && pessoaData.isCelular) {
-        await enviarMensagem({
+        let response = await enviarMensagem({
           "messaging_product": "whatsapp",
           "recipient_type": "individual",
           "to": pessoaData.telefone,
@@ -180,16 +182,25 @@ export async function GET(req: NextRequest) {
             ]
           }
         });
+        metaResponses.push({ pessoaId, status: "sent", response });
       }
 
     }
+
+    // Enviar e-mails com as escalas e respostas do Meta API
+    sendMail({
+      from: "viniolimpio3@gmail.com",
+      to: "viniolimpio3@gmail.com",
+      subject: "Escalas e respostas do Meta API - " + new Date().toLocaleDateString(),
+      text: JSON.stringify({ escalaPorPessoa, metaResponses }, null, 2)
+    });
 
 
     return NextResponse.json(
       {
         success: true,
         message: "Mensagens enviadas com sucesso",
-        escala,
+        escalaPorPessoa
       },
       { status: 200 }
     );
