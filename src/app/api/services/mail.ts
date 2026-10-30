@@ -11,7 +11,7 @@ const transporter = nodemailer.createTransport({
 });
 
 
-export default function sendMail(options: {
+export default async function sendMail(options: {
   from: string|undefined,
   to: string|undefined,
   subject: string,
@@ -22,5 +22,5 @@ export default function sendMail(options: {
     path: string
   }>
 }) {
-  return transporter.sendMail(options);
+  return await transporter.sendMail(options);
 }

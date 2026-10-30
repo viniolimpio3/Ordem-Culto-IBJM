@@ -188,7 +188,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Enviar e-mails com as escalas e respostas do Meta API
-    sendMail({
+    await sendMail({
       from: process.env.EMAIL_FROM,
       to: process.env.EMAIL_TO,
       subject: "Escalas e respostas do Meta API - " + new Date().toLocaleDateString(),
@@ -200,7 +200,8 @@ export async function GET(req: NextRequest) {
       {
         success: true,
         message: "Mensagens enviadas com sucesso",
-        escalaPorPessoa
+        escalaPorPessoa,
+        metaResponses
       },
       { status: 200 }
     );

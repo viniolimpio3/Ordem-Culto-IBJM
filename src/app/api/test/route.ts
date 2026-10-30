@@ -139,7 +139,7 @@ export async function GET(req: NextRequest) {
   try {
 
     // Enviar e-mails com as escalas e respostas do Meta API
-    const emailResponse = sendMail({
+    const emailResponse = await sendMail({
       from: process.env.EMAIL_FROM,
       to: process.env.EMAIL_TO,
       subject: "Escalas e respostas do Meta API - " + new Date().toLocaleDateString(),
